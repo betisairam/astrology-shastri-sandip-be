@@ -10,6 +10,10 @@ const options = {
         },
         servers: [
             {
+                url: 'https://api.shastrisandip.com',
+                description: 'Production server',
+            },
+            {
                 url: 'http://localhost:5000',
                 description: 'Local dev server',
             },
