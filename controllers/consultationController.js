@@ -1,3 +1,5 @@
+const moment = require('moment');
+
 const service = require('../services/consultationService');
 const emailer = require('../utils/emailer');
 const logger = require('../utils/logger');
@@ -8,6 +10,19 @@ exports.createConsultation = async (req, res) => {
             ...req.body,
             created_by: req.user?.id || null
         };
+
+        let timeRaw = req.body.timeOfBirth || '';
+
+        if (timeRaw.includes('AM') || timeRaw.includes('PM')) {
+            // 12-hour format → convert to 24-hour
+            const time24 = moment(timeRaw, ['h:mm A', 'hh:mm A']).format('HH:mm:ss');
+            req.body.timeOfBirth = time24;
+        } else if (moment(timeRaw, 'HH:mm', true).isValid()) {
+            req.body.timeOfBirth = moment(timeRaw, 'HH:mm').format('HH:mm:ss');
+        } else {
+            return res.status(400).json({ error: 'Invalid timeOfBirth format' });
+        }
+
         const consultation = await service.create(data);
 
         await emailer.toCustomer(data.email, 'Thank you for your consultation!');
