@@ -70,4 +70,49 @@ router.get('/', auth, contactController.getAllContacts);
  */
 router.delete('/:id', auth, contactController.deleteContact);
 
+const { contactStatusUpdateSchema } = require('../utils/validateInput');
+
+/**
+ * @swagger
+ * /api/contacts/{id}/status:
+ *   put:
+ *     summary: Update contact status
+ *     tags: [Contacts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the contact
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum:
+ *                   - pending
+ *                   - responded
+ *                   - not_picking_up
+ *                   - meeting_scheduled
+ *                   - scam_user
+ *                   - rejected
+ *     responses:
+ *       200:
+ *         description: Status updated
+ */
+router.put(
+    '/:id/status',
+    auth,
+    validate(contactStatusUpdateSchema),
+    contactController.updateStatus
+);
+
 module.exports = router;

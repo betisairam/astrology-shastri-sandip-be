@@ -65,3 +65,33 @@ exports.deleteConsultation = async (req, res) => {
         res.status(500).json({ error: 'Something went wrong' });
     }
 };
+
+exports.updateStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admins only' });
+        }
+
+        const updated = await db('consultations')
+            .where({ id })
+            .update({
+                status,
+                updated_by: req.user.id,
+                updated_at: new Date()
+            });
+
+        if (!updated) {
+            return res.status(404).json({ error: 'Consultation not found' });
+        }
+
+        logger.info(`✅ Consultation ${id} status updated to '${status}' by admin ${req.user.id}`);
+        res.json({ message: 'Consultation status updated successfully' });
+
+    } catch (err) {
+        logger.error('❌ Failed to update consultation status', err);
+        res.status(500).json({ error: 'Something went wrong' });
+    }
+};

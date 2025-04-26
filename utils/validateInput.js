@@ -25,3 +25,29 @@ exports.consultationSchema = Joi.object({
     timeOfBirth: Joi.string().required(),
     placeOfBirth: Joi.string().required(),
 });
+
+exports.contactStatusUpdateSchema = Joi.object({
+    status: Joi.string()
+        .valid(
+            'pending',
+            'responded',
+            'not_picking_up',
+            'meeting_scheduled',
+            'scam_user',
+            'rejected'
+        )
+        .required()
+});
+
+exports.consultationStatusUpdateSchema = Joi.object({
+    status: Joi.string()
+        .valid(
+            'pending',
+            'responded',
+            'not_picking_up',
+            'meeting_scheduled',
+            'scam_user',
+            'rejected'
+        )
+        .required()
+});

@@ -3,7 +3,8 @@ const router = express.Router();
 const controller = require('../controllers/consultationController');
 const auth = require('../middlewares/authMiddleware');
 const { validate } = require('../middlewares/validateMiddleware');
-const { consultationSchema } = require('../utils/validateInput');
+const { consultationSchema, consultationStatusUpdateSchema } = require('../utils/validateInput');
+const consultationController = require('../controllers/consultationController');
 
 /**
  * @swagger
@@ -62,5 +63,51 @@ router.get('/', auth, controller.getAllConsultations);
  *         description: Deleted
  */
 router.delete('/:id', auth, controller.deleteConsultation);
+
+
+
+/**
+ * @swagger
+ * /api/consultations/{id}/status:
+ *   put:
+ *     summary: Update consultation status
+ *     tags: [Consultations]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID of the consultation
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [status]
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum:
+ *                   - pending
+ *                   - responded
+ *                   - not_picking_up
+ *                   - meeting_scheduled
+ *                   - scam_user
+ *                   - rejected
+ *     responses:
+ *       200:
+ *         description: Status updated
+ */
+router.put(
+    '/:id/status',
+    auth,
+    validate(consultationStatusUpdateSchema),
+    consultationController.updateStatus
+);
+
 
 module.exports = router;
