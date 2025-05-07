@@ -5,25 +5,43 @@ const logger = require('../utils/logger');
 
 exports.createContact = async (req, res) => {
     try {
+        // Extract form data
+        const { name, email, message, website } = req.body;
+
+        // Honeypot validation - check if the hidden 'website' field is filled
+        if (website) {
+            // If the honeypot field has any value, treat it as a spam submission
+            logger.warn('⚠️ Spam detected from contact form submission:', req.body);
+            return res.status(400).json({ error: 'Spam detected. Submission rejected.' });
+        }
+
+        // If no spam detected, proceed with the normal submission process
         const data = {
-            ...req.body,
+            name,
+            email,
+            message,
             created_by: req.user?.id || null
         };
 
+        // Store the valid form submission in the database
         const contact = await contactService.create(data);
 
-        // Email notifications
+        // Send email notifications
         await emailer.toCustomer(data.email, 'Thank you for contacting us!');
         await emailer.toAdmin('New Contact Form Submitted', contact);
 
+        // Log the successful submission
         logger.info('📨 New contact submission', contact);
 
+        // Respond with success
         res.status(201).json(contact);
     } catch (err) {
+        // Log error and respond with failure
         logger.error('❌ Contact submission failed', err);
         res.status(500).json({ error: 'Something went wrong' });
     }
 };
+
 
 exports.getAllContacts = async (req, res) => {
     try {

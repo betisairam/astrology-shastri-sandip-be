@@ -30,7 +30,7 @@ const consultationController = require('../controllers/consultationController');
  *       201:
  *         description: Created
  */
-router.post('/', validate(consultationSchema), controller.createConsultation);
+router.post('/', rateLimiter, validate(consultationSchema), controller.createConsultation);
 
 /**
  * @swagger
