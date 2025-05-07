@@ -5,6 +5,8 @@ const auth = require('../middlewares/authMiddleware');
 const { validate } = require('../middlewares/validateMiddleware');
 const { consultationSchema, consultationStatusUpdateSchema } = require('../utils/validateInput');
 const consultationController = require('../controllers/consultationController');
+const rateLimiter = require('../middlewares/rateLimiter');
+
 
 /**
  * @swagger
