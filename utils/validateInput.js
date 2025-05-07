@@ -14,7 +14,8 @@ exports.contactSchema = Joi.object({
     name: Joi.string().required(),
     email: Joi.string().email().required(),
     mobileNumber: Joi.string().min(8).max(20).required(),
-    description: Joi.string().required()
+    description: Joi.string().required(),
+    website: Joi.string().valid('').required()
 });
 
 exports.consultationSchema = Joi.object({

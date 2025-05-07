@@ -6,7 +6,8 @@ const logger = require('../utils/logger');
 exports.createContact = async (req, res) => {
     try {
         // Extract form data
-        const { name, email, message, website } = req.body;
+        const { name, email, mobileNumber, description, website } = req.body;
+
 
         // Honeypot validation - check if the hidden 'website' field is filled
         if (website) {
@@ -19,7 +20,8 @@ exports.createContact = async (req, res) => {
         const data = {
             name,
             email,
-            message,
+            mobileNumber,
+            description,
             created_by: req.user?.id || null
         };
 
