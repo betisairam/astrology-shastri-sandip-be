@@ -7,7 +7,7 @@ exports.createContact = async (req, res) => {
     try {
         const data = {
             ...req.body,
-            created_by: req.user.id, // From JWT token
+            created_by: req.user?.id || null
         };
 
         const contact = await contactService.create(data);
