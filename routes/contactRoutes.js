@@ -30,7 +30,7 @@ const { contactSchema } = require('../utils/validateInput');
  *       201:
  *         description: Contact submitted successfully
  */
-router.post('/', auth, validate(contactSchema), contactController.createContact);
+router.post('/', validate(contactSchema), contactController.createContact);
 
 /**
  * @swagger
