@@ -2,19 +2,19 @@ const cron = require('node-cron');
 const { generateBackup, deleteOldBackups } = require('../services/backupService');
 
 const startBackupCron = () => {
-    // Every 5 minutes - generate backup
-    cron.schedule('*/5 * * * *', async () => {
+    // Schedule a job to run at 12:00 AM every day
+    cron.schedule('0 0 * * *', async () => {
         console.log('🕔 Running scheduled DB backup...');
-        // await generateBackup();
+        await generateBackup();
     });
 
-    // Every 10 minutes - delete old local backups
-    cron.schedule('*/10 * * * *', () => {
+    // Every 15 days - delete old local backups
+    cron.schedule('0 0 */15 * *', () => {
         console.log('🧹 Cleaning up old backups...');
         deleteOldBackups();
     });
 
-    console.log('✅ Backup Cron scheduled (5 min backup, 10 min cleanup)');
+    console.log('✅ Backup Cron scheduled (Daily backup at 12 AM, Cleanup every 15 days)');
 };
 
 module.exports = startBackupCron;
