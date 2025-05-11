@@ -23,3 +23,16 @@ exports.toAdmin = (subject, data) =>
         subject,
         html: `<pre>${JSON.stringify(data, null, 2)}</pre>`
     });
+
+// Send Email
+exports.sendEmail = async ({ to, subject, text, html }) => {
+    const mailOptions = {
+        from: process.env.SMTP_FROM_EMAIL,
+        to,
+        subject,
+        text,
+        html
+    };
+
+    await transporter.sendMail(mailOptions);
+};
