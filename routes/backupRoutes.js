@@ -3,7 +3,6 @@ const express = require('express');
 const auth = require('../middlewares/authMiddleware');
 const restoreBackupController = require('../controllers/restoreBackupController');
 const router = express.Router();
-const { downloadAndDecryptLatestBackup } = require('../services/backupService'); // adjust path if needed
 
 /**
  * @swagger
@@ -37,30 +36,5 @@ const { downloadAndDecryptLatestBackup } = require('../services/backupService');
 
 // GET /api/backup/latest
 router.get('/latest', auth, restoreBackupController.restoreBackupFromS3);
-
-
-/**
- * @swagger
- * /api/backup/download-latest:
- *   get:
- *     summary: Download and decrypt the latest backup from S3
- *     description: Downloads the most recent encrypted backup from S3, decrypts it, and stores it locally.
- *     tags:
- *       - Backup
- *     responses:
- *       200:
- *         description: Latest backup downloaded and decrypted successfully.
- *       500:
- *         description: Server error while downloading or decrypting the backup.
- */
-router.get('/download-latest', async (req, res) => {
-    try {
-        await downloadAndDecryptLatestBackup();
-        res.status(200).json({ message: '✅ Latest backup downloaded and decrypted successfully.' });
-    } catch (error) {
-        console.error('❌ Error downloading/decrypting backup:', error);
-        res.status(500).json({ error: 'Server error occurred.' });
-    }
-});
 
 module.exports = router;
