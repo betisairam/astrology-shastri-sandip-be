@@ -19,6 +19,8 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const startBackupCron = require('./cron/backupCron');
 const backupRoutes = require('./routes/backupRoutes');
 
+const translationRoutes = require('./routes/translationRoutes');
+
 const app = express();
 
 // ✅ Enable CORS before any routes
@@ -41,6 +43,8 @@ app.use('/api/consultations', consultationRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/backup', backupRoutes);
+
+app.use('/api/translations', translationRoutes);
 
 startBackupCron();
 
