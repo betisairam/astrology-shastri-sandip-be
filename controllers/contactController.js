@@ -46,15 +46,50 @@ exports.createContact = async (req, res) => {
 
 
 exports.getAllContacts = async (req, res) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ error: 'Admins only' });
+    }
+
     try {
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ error: 'Forbidden: Admins only' });
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+        // Base query
+        const baseQuery = db('contacts');
+
+        // Apply search filter
+        if (search) {
+            baseQuery.where((builder) =>
+                builder
+                    .whereILike('name', `%${search}%`)
+                    .orWhereILike('email', `%${search}%`)
+            );
         }
 
-        const contacts = await contactService.getAll();
-        res.json(contacts);
+        // Get total count
+        const [{ count }] = await baseQuery.clone().count('id');
+        const total = parseInt(count, 10);
+
+        // Get paginated records
+        const contacts = await baseQuery
+            .select('*')
+            .orderBy('created_at', 'desc')
+            .offset(offset)
+            .limit(limit);
+
+        // Send response
+        res.json({
+            data: contacts,
+            meta: {
+                total,
+                page,
+                pageSize: limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
     } catch (err) {
-        logger.error('❌ Failed to get contacts', err);
+        logger.error('❌ Failed to fetch contacts', err);
         res.status(500).json({ error: 'Something went wrong' });
     }
 };

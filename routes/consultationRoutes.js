@@ -38,12 +38,28 @@ router.post('/', rateLimiter, validate(consultationSchema), controller.createCon
  * @swagger
  * /api/consultations:
  *   get:
- *     summary: Get all consultations
+ *     summary: Get all consultations (admin only)
  *     tags: [Consultations]
- *     security: [ bearerAuth: [] ]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: page
+ *         in: query
+ *         schema:
+ *           type: integer
+ *         default: 1
+ *       - name: limit
+ *         in: query
+ *         schema:
+ *           type: integer
+ *         default: 10
  *     responses:
  *       200:
- *         description: Success
+ *         description: List of consultations with pagination
+ *       403:
+ *         description: Forbidden
+ *       500:
+ *         description: Server error
  */
 router.get('/', auth, controller.getAllConsultations);
 
@@ -71,18 +87,18 @@ router.delete('/:id', auth, controller.deleteConsultation);
 /**
  * @swagger
  * /api/consultations/{id}/status:
- *   put:
+ *   patch:
  *     summary: Update consultation status
  *     tags: [Consultations]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
- *         description: ID of the consultation
+ *         description: Consultation ID
  *     requestBody:
  *       required: true
  *       content:
@@ -93,17 +109,20 @@ router.delete('/:id', auth, controller.deleteConsultation);
  *             properties:
  *               status:
  *                 type: string
- *                 enum:
- *                   - pending
- *                   - responded
- *                   - not_picking_up
- *                   - meeting_scheduled
- *                   - scam_user
- *                   - rejected
+ *                 enum: [pending, responded, not_picking_up, meeting_scheduled, scam_user, rejected]
  *     responses:
  *       200:
- *         description: Status updated
+ *         description: Consultation status updated
+ *       400:
+ *         description: Invalid status
+ *       403:
+ *         description: Only admins allowed
+ *       404:
+ *         description: Consultation not found
+ *       500:
+ *         description: Server error
  */
+
 router.put(
     '/:id/status',
     auth,
