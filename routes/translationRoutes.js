@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/translationController');
+const auth = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
@@ -41,7 +42,7 @@ router.get('/', controller.getAll);
  *     responses:
  *       201: { description: Translations created }
  */
-router.post('/', controller.createBulk);
+router.post('/', auth, controller.createBulk);
 
 /**
  * @swagger
@@ -56,6 +57,6 @@ router.post('/', controller.createBulk);
  *     responses:
  *       200: { description: Deleted }
  */
-router.delete('/:id', controller.softDelete);
+router.delete('/:id', auth, controller.softDelete);
 
 module.exports = router;
