@@ -19,7 +19,12 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const startBackupCron = require('./cron/backupCron');
 const backupRoutes = require('./routes/backupRoutes');
 
+const paymentRoutes = require('./routes/paymentRoutes');
+
 const app = express();
+
+app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+app.use(express.json());
 
 // ✅ Enable CORS before any routes
 app.use(cors({
@@ -41,6 +46,8 @@ app.use('/api/consultations', consultationRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/backup', backupRoutes);
+
+app.use('/api/payment', paymentRoutes);
 
 startBackupCron();
 
