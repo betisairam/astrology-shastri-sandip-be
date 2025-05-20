@@ -53,7 +53,7 @@ router.get('/latest', auth, restoreBackupController.restoreBackupFromS3);
  *       500:
  *         description: Server error while downloading or decrypting the backup.
  */
-router.get('/download-latest', async (req, res) => {
+router.get('/download-latest', auth, async (req, res) => {
     try {
         await downloadAndDecryptLatestBackup();
         res.status(200).json({ message: '✅ Latest backup downloaded and decrypted successfully.' });
