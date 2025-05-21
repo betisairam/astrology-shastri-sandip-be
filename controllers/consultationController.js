@@ -26,8 +26,8 @@ exports.createConsultation = async (req, res) => {
 
         const consultation = await service.create(data);
 
-        await emailer.toCustomer(data.email, 'Thank you for your consultation!');
-        await emailer.toAdmin('New Consultation Request', consultation);
+        // await emailer.toCustomer(data.email, 'Thank you for your consultation!');
+        // await emailer.toAdmin('New Consultation Request', consultation);
 
         logger.info(`📨 New consultation submitted ${req.user ? `by user ${req.user.id}` : 'anonymously'}`);
 
@@ -44,16 +44,32 @@ exports.getAllConsultations = async (req, res) => {
     }
 
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
         const offset = (page - 1) * limit;
+        const search = req.query.search || '';
 
-        // Get total count
-        const [{ count }] = await db('consultations').count('id');
-        const total = parseInt(count);
+        // Base query
+        const baseQuery = db('consultations').whereNull('deleted_at');
+
+        // Apply search filter if present
+        if (search) {
+            baseQuery.where((builder) =>
+                builder
+                    .whereILike('name', `%${search}%`)
+                    .orWhereILike('email', `%${search}%`)
+                    .orWhereILike('subject', `%${search}%`)  // customize fields as per your schema
+                    .orWhereILike('notes', `%${search}%`)
+                    .orWhereILike('status', `%${search}%`)
+            );
+        }
+
+        // Get total count after filter
+        const [{ count }] = await baseQuery.clone().count('id');
+        const total = parseInt(count, 10);
 
         // Get paginated data
-        const consultations = await db('consultations')
+        const consultations = await baseQuery
             .select('*')
             .orderBy('created_at', 'desc')
             .offset(offset)
@@ -65,8 +81,8 @@ exports.getAllConsultations = async (req, res) => {
                 total,
                 page,
                 pageSize: limit,
-                totalPages: Math.ceil(total / limit)
-            }
+                totalPages: Math.ceil(total / limit),
+            },
         });
     } catch (err) {
         logger.error('❌ Failed to fetch consultations', err);

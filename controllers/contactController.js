@@ -29,8 +29,8 @@ exports.createContact = async (req, res) => {
         const contact = await contactService.create(data);
 
         // Send email notifications
-        await emailer.toCustomer(data.email, 'Thank you for contacting us!');
-        await emailer.toAdmin('New Contact Form Submitted', contact);
+        // await emailer.toCustomer(data.email, 'Thank you for contacting us!');
+        // await emailer.toAdmin('New Contact Form Submitted', contact);
 
         // Log the successful submission
         logger.info('📨 New contact submission', contact);
@@ -56,7 +56,7 @@ exports.getAllContacts = async (req, res) => {
         const offset = (page - 1) * limit;
         const search = req.query.search || '';
         // Base query
-        const baseQuery = db('contacts');
+        const baseQuery = db('contacts').whereNull('deleted_at');
 
         // Apply search filter
         if (search) {
@@ -64,6 +64,7 @@ exports.getAllContacts = async (req, res) => {
                 builder
                     .whereILike('name', `%${search}%`)
                     .orWhereILike('email', `%${search}%`)
+                    .orWhereILike('mobileNumber', `%${search}%`)
             );
         }
 

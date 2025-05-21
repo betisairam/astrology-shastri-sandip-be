@@ -21,16 +21,35 @@ const backupRoutes = require('./routes/backupRoutes');
 
 const app = express();
 
-// ✅ Enable CORS before any routes
+// ✅ Updated CORS configuration
+const allowedOrigins = [
+    'https://3300-firebase-studio-1747779066805.cluster-w5vd22whf5gmav2vgkomwtc4go.cloudworkstations.dev',
+    'https://6000-firebase-studio-1747779066805.cluster-w5vd22whf5gmav2vgkomwtc4go.cloudworkstations.dev',
+    'http://localhost:3000',
+    'http://localhost:5000',
+    'https://qg1rn60q-5000.inc1.devtunnels.ms',
+    '*'// Optional: include for local development
+];
+
 app.use(cors({
-    origin: '*', // or restrict to your frontend: 'http://localhost:3000'
-    methods: ['GET', 'POST', 'DELETE', 'PUT'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    origin: (origin, callback) => {
+        // Allow requests with no origin (e.g., non-browser clients like Postman) or from allowed origins
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explicitly allow methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow common headers
+    credentials: true // Enable if your app uses cookies or auth tokens
 }));
+
+// Explicitly handle preflight requests for all routes
+app.options('*', cors());
 
 app.use(express.json());
 app.use(helmet());
-
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

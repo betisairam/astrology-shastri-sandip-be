@@ -36,6 +36,9 @@ router.post('/', rateLimiter, validate(consultationSchema), controller.createCon
 
 /**
  * @swagger
+ * tags:
+ *   name: Consultations
+ *   description: Manage consultation requests
  * /api/consultations:
  *   get:
  *     summary: Get all consultations (admin only)
@@ -43,21 +46,74 @@ router.post('/', rateLimiter, validate(consultationSchema), controller.createCon
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - name: page
- *         in: query
+ *       - in: query
+ *         name: page
  *         schema:
  *           type: integer
- *         default: 1
- *       - name: limit
- *         in: query
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
  *         schema:
  *           type: integer
- *         default: 10
+ *           default: 10
+ *         description: Number of results per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search consultations by name, email, subject or notes (case-insensitive)
  *     responses:
  *       200:
- *         description: List of consultations with pagination
+ *         description: List of consultation records with pagination
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 201
+ *                       name:
+ *                         type: string
+ *                         example: Alice Smith
+ *                       email:
+ *                         type: string
+ *                         example: alice@example.com
+ *                       subject:
+ *                         type: string
+ *                         example: Business strategy
+ *                       notes:
+ *                         type: string
+ *                         example: Looking to scale operations in Q3
+ *                       status:
+ *                         type: string
+ *                         example: pending
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                 meta:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       example: 25
+ *                     page:
+ *                       type: integer
+ *                       example: 1
+ *                     pageSize:
+ *                       type: integer
+ *                       example: 10
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 3
  *       403:
- *         description: Forbidden
+ *         description: Forbidden - only admins may access this route
  *       500:
  *         description: Server error
  */
@@ -82,12 +138,10 @@ router.get('/', auth, controller.getAllConsultations);
  */
 router.delete('/:id', auth, controller.deleteConsultation);
 
-
-
 /**
  * @swagger
  * /api/consultations/{id}/status:
- *   patch:
+ *   put:
  *     summary: Update consultation status
  *     tags: [Consultations]
  *     security:
@@ -122,7 +176,6 @@ router.delete('/:id', auth, controller.deleteConsultation);
  *       500:
  *         description: Server error
  */
-
 router.put(
     '/:id/status',
     auth,
