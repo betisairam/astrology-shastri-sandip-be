@@ -1,7 +1,10 @@
 exports.up = async function (knex) {
-    await knex.schema.alterTable('consultations', table => {
-        table.dropColumn('status');
-    });
+    const hasStatus = await knex.schema.hasColumn('consultations', 'status');
+    if (hasStatus) {
+        await knex.schema.alterTable('consultations', table => {
+            table.dropColumn('status');
+        });
+    }
 
     await knex.schema.alterTable('consultations', table => {
         table.enu('status', [
@@ -21,6 +24,6 @@ exports.down = async function (knex) {
     });
 
     await knex.schema.alterTable('consultations', table => {
-        table.enu('status', ['pending']).defaultTo('pending').notNullable();
+        table.enu('status', ['pending', 'reviewed', 'closed']).defaultTo('pending');
     });
 };

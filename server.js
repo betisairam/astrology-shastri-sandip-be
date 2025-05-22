@@ -19,12 +19,14 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const startBackupCron = require('./cron/backupCron');
 const backupRoutes = require('./routes/backupRoutes');
 
+const serviceRoutes = require('./routes/serviceRoutes');
+const testimonialRoutes = require('./routes/testimonialRoutes')
+
 const app = express();
 
 // ✅ Updated CORS configuration
 const allowedOrigins = [
-    'https://3300-firebase-studio-1747779066805.cluster-w5vd22whf5gmav2vgkomwtc4go.cloudworkstations.dev',
-    'https://6000-firebase-studio-1747779066805.cluster-w5vd22whf5gmav2vgkomwtc4go.cloudworkstations.dev',
+    'https://9000-firebase-studio-1747779066805.cluster-w5vd22whf5gmav2vgkomwtc4go.cloudworkstations.dev',
     'http://localhost:3000',
     'http://localhost:5000',
     'https://qg1rn60q-5000.inc1.devtunnels.ms',
@@ -61,6 +63,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/backup', backupRoutes);
 
+app.use('/api/services', serviceRoutes);
+app.use('/api/testimonials', testimonialRoutes);
 startBackupCron();
 
 const PORT = process.env.PORT || 5000;
