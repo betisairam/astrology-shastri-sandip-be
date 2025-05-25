@@ -1,9 +1,14 @@
-exports.up = function (knex) {
+exports.up = async function (knex) {
+    const hasLocation = await knex.schema.hasColumn('testimonials', 'location');
+    const hasRating = await knex.schema.hasColumn('testimonials', 'rating');
+    const hasCategory = await knex.schema.hasColumn('testimonials', 'category');
+    const hasFeatured = await knex.schema.hasColumn('testimonials', 'featured');
+
     return knex.schema.table('testimonials', (table) => {
-        table.jsonb('location').nullable();
-        table.integer('rating').nullable();
-        table.string('category').nullable();
-        table.boolean('featured').defaultTo(false);
+        if (!hasLocation) table.jsonb('location').nullable();
+        if (!hasRating) table.integer('rating').nullable();
+        if (!hasCategory) table.string('category').nullable();
+        if (!hasFeatured) table.boolean('featured').defaultTo(false);
     });
 };
 

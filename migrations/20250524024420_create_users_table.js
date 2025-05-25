@@ -6,7 +6,18 @@ exports.up = function (knex) {
                 table.string('name').notNullable();
                 table.string('email').notNullable().unique();
                 table.string('password').notNullable();
-                table.string('role').defaultTo('user');
+
+                table
+                    .integer('role_id')
+                    .unsigned()
+                    .references('id')
+                    .inTable('roles')
+                    .onDelete('SET NULL');
+
+                table.boolean('is_active').defaultTo(true); // active by default
+
+                table.timestamp('deleted_at').nullable(); // soft delete timestamp
+
                 table.timestamps(true, true);
             });
         }

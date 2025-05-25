@@ -1,15 +1,25 @@
+require('dotenv').config();  // load .env file if you use one
 const bcrypt = require('bcrypt');
 const db = require('./knex');
 
-const seedAdmin = async () => {
-    const email = process.env.ADMIN_EMAIL;
-    const plainPassword = process.env.ADMIN_PASSWORD;
-    const role = 'admin';
+const seedSuperAdmin = async () => {
+    const email = process.env.SUPER_ADMIN_EMAIL;
+    const plainPassword = process.env.SUPER_ADMIN_PASSWORD;
+    const roleName = 'super_admin';
 
-    const existingAdmin = await db('users').where({ email }).first();
-    if (existingAdmin) {
-        console.log('✅ Admin already exists.');
+    if (!email || !plainPassword) {
+        throw new Error('SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD environment variables must be set.');
+    }
+
+    const existingUser = await db('users').where({ email }).first();
+    if (existingUser) {
+        console.log('✅ Super admin already exists.');
         return;
+    }
+
+    const role = await db('roles').where({ name: roleName, is_active: true }).first();
+    if (!role) {
+        throw new Error(`Role "${roleName}" not found or not active.`);
     }
 
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
@@ -18,10 +28,10 @@ const seedAdmin = async () => {
         name: 'Sandip Sevak',
         email,
         password: hashedPassword,
-        role,
+        role_id: role.id,
     });
 
-    console.log('✅ Default admin seeded successfully!');
+    console.log('✅ Super admin seeded successfully!');
 };
 
-module.exports = seedAdmin;
+module.exports = seedSuperAdmin;

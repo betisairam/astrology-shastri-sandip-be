@@ -1,16 +1,16 @@
 const db = require('../db/knex');
 
-exports.create = async ({ name, email, mobileNumber, description, created_by }) => {
+exports.create = async ({ name, email, mobileNumber, message, subject, created_by }) => {
     const [contact] = await db('contacts')
         .insert({
             name,
             email,
             mobileNumber,
-            description,
-            status: 'pending',
+            message,
+            subject,
             created_by,
         })
-        .returning(['id', 'name', 'email', 'mobileNumber', 'description', 'status']);
+        .returning(['id', 'name', 'email', 'mobileNumber', 'message', 'subject', 'created_by']);
 
     return contact;
 };

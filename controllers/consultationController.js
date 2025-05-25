@@ -39,7 +39,7 @@ exports.createConsultation = async (req, res) => {
 };
 
 exports.getAllConsultations = async (req, res) => {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'super_admin') {
         return res.status(403).json({ error: 'Admins only' });
     }
 
@@ -92,7 +92,7 @@ exports.getAllConsultations = async (req, res) => {
 
 
 exports.deleteConsultation = async (req, res) => {
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'super_admin') {
         return res.status(403).json({ error: 'Admins only' });
     }
 
@@ -111,7 +111,7 @@ exports.updateStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        if (req.user.role !== 'admin') {
+        if (req.user.role !== 'super_admin') {
             return res.status(403).json({ error: 'Admins only' });
         }
 

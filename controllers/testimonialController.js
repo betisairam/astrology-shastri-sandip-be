@@ -68,6 +68,30 @@ exports.getAllByLang = async (req, res) => {
     }
 };
 
+exports.create = async (req, res) => {
+    try {
+        if (Array.isArray(req.body)) {
+            return res.status(400).json({ error: 'Expected a single object, received an array.' });
+        }
+
+        const data = {
+            ...req.body,
+            image: req.body.image || null,
+            is_active: req.body.is_active ?? true,
+            created_at: new Date(),
+            updated_at: new Date(),
+        };
+
+        const [inserted] = await db('testimonials').insert(data).returning(['id']);
+        res.status(201).json(inserted);
+    } catch (err) {
+        console.error('Error inserting testimonial:', err);
+        if (!res.headersSent) {
+            res.status(500).json({ error: 'Failed to create testimonial.' });
+        }
+    }
+};
+
 // exports.getById = async (req, res) => {
 //     try {
 //         const t = await db('testimonials')
@@ -114,27 +138,6 @@ exports.getById = async (req, res) => {
         }
     }
 };
-
-exports.create = async (req, res) => {
-    try {
-        const data = {
-            ...req.body,
-            image: req.body.image || null,
-            is_active: req.body.is_active || true,
-            created_at: new Date(),
-            updated_at: new Date()
-        };
-
-        const [{ id }] = await db('testimonials').insert(data).returning('id');
-        return res.status(201).json({ id });
-    } catch (err) {
-        console.error('Error inserting testimonial:', err);
-        if (!res.headersSent) {
-            res.status(500).json({ error: 'Failed to create testimonial.' });
-        }
-    }
-};
-
 
 exports.update = async (req, res) => {
     try {

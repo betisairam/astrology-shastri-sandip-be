@@ -14,7 +14,8 @@ exports.contactSchema = Joi.object({
     name: Joi.string().required(),
     email: Joi.string().email().required(),
     mobileNumber: Joi.string().min(8).max(20).required(),
-    description: Joi.string().required(),
+    subject: Joi.string().required(), // ✅ now required
+    message: Joi.string().required(),
     website: Joi.string().valid('').required()
 });
 
@@ -51,4 +52,10 @@ exports.consultationStatusUpdateSchema = Joi.object({
             'rejected'
         )
         .required()
+});
+
+exports.contactReplySchema = Joi.object({
+    subject: Joi.string().required(),
+    message: Joi.string().required(),
+    sendEmail: Joi.boolean().optional().default(true)
 });

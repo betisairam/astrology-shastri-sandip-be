@@ -1,4 +1,4 @@
-const { testimonialData } = require('./testimonial-data.js'); // adjust path if needed
+const { testimonialData } = require('../mock-data/testimonial-data'); // adjust path if needed
 
 exports.seed = async function (knex) {
     // Clear existing data

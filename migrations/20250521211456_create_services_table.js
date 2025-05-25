@@ -15,7 +15,13 @@ exports.up = function (knex) {
                 table.string('best_for');
                 table.string('type');
                 table.specificType('features', 'text[]');
-                table.timestamps(true, true);
+
+                // New fields
+                table.boolean('is_active').defaultTo(true);
+                table.boolean('recommended').defaultTo(false);
+                table.timestamp('deleted_at').nullable();
+
+                table.timestamps(true, true); // created_at and updated_at
             });
         }
     });
