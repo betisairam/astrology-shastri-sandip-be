@@ -8,33 +8,49 @@ exports.createContact = async (req, res) => {
     try {
         const { name, email, mobileNumber, message, subject, website } = req.body;
 
-        // Honeypot spam check
+        // 🛡️ Spam honeypot
         if (website) {
             logger.warn('⚠️ Spam detected from contact form submission:', req.body);
             return res.status(400).json({ error: 'Spam detected. Submission rejected.' });
         }
 
-        // Build data object
-        const data = {
+        // 1. Check for existing user
+        let user = await db('users').where({ email }).whereNull('deleted_at').first();
+
+        if (!user) {
+            // 2. Fetch role_id for 'customer'
+            const role = await db('roles').select('id').where({ name: 'customer' }).first();
+            if (!role) return res.status(500).json({ error: 'Customer role not found' });
+
+            const [userId] = await db('users').insert({
+                name,
+                email,
+                role_id: role.id,
+                is_active: true,
+                created_at: new Date(),
+                updated_at: new Date()
+            }).returning('id');
+
+            user = { id: userId };
+        }
+
+        // 3. Save contact entry
+        const contactData = {
             name,
             email,
             mobileNumber,
             message,
             subject,
+            created_by: user.id
         };
 
-        // Add created_by only if user is logged in
-        if (req.user && req.user.id) {
-            data.created_by = req.user.id;
-        }
+        const contact = await contactService.create(contactData);
 
-        const contact = await contactService.create(data);
-
-        logger.info('📨 New contact submission', contact);
-
+        logger.info('📨 New contact created and linked to user ID', user.id);
         res.status(201).json(contact);
+
     } catch (err) {
-        logger.error('❌ Contact submission failed', err);
+        logger.error('❌ Contact creation failed', err);
         res.status(500).json({ error: 'Something went wrong' });
     }
 };

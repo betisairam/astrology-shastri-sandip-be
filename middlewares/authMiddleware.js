@@ -12,3 +12,12 @@ module.exports = function (req, res, next) {
         res.status(403).json({ error: 'Invalid token' });
     }
 };
+
+// Admin-only
+module.exports.adminOnly = (req, res, next) => {
+    if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
+        return res.status(403).json({ error: 'Admins only' });
+    }
+    next();
+};
+

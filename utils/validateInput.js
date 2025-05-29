@@ -59,3 +59,20 @@ exports.contactReplySchema = Joi.object({
     message: Joi.string().required(),
     sendEmail: Joi.boolean().optional().default(true)
 });
+
+exports.salarySettingsSchema = Joi.object({
+    equity_salary_enabled: Joi.boolean().required(),
+    profit_threshold: Joi.number().required(),
+    base_multiplier: Joi.number().required()
+});
+
+exports.blogSchema = Joi.object({
+    title: Joi.string().min(3).required(),
+    slug: Joi.string().alphanum().min(3),
+    summary: Joi.string().allow(''),
+    content: Joi.string().required(),
+    featured_image: Joi.string().uri().optional(),
+    tags: Joi.array().items(Joi.string()).default([]),
+    status: Joi.string().valid('draft', 'published', 'scheduled').default('draft'),
+    published_at: Joi.date().optional()
+});
