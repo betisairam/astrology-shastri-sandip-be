@@ -37,6 +37,13 @@ exports.create = async (req, res) => {
         // Authenticated user ID
         data.created_by = req.user?.id || 1;
 
+        if (data.tags && Array.isArray(data.tags)) {
+            data.tags = JSON.stringify(data.tags);
+        }
+        if (data.status === 'published' && !data.published_at) {
+            data.published_at = new Date();
+        }
+
         const id = await blogService.create(data);
         res.status(201).json({ id });
     } catch (err) {

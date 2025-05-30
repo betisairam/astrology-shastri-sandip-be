@@ -68,11 +68,22 @@ exports.salarySettingsSchema = Joi.object({
 
 exports.blogSchema = Joi.object({
     title: Joi.string().min(3).required(),
-    slug: Joi.string().alphanum().min(3),
-    summary: Joi.string().allow(''),
+    slug: Joi.string().pattern(/^[a-z0-9-]+$/).min(3).optional(), // clean SEO-friendly slugs
+    summary: Joi.string().max(300).allow(''),
     content: Joi.string().required(),
     featured_image: Joi.string().uri().optional(),
     tags: Joi.array().items(Joi.string()).default([]),
     status: Joi.string().valid('draft', 'published', 'scheduled').default('draft'),
-    published_at: Joi.date().optional()
+    published_at: Joi.date()
+        .allow(null)
+        .when('status', {
+            is: 'scheduled',
+            then: Joi.date().required().messages({
+                'any.required': '"published_at" is required when status is "scheduled"',
+            }),
+            otherwise: Joi.date().optional().allow(null),
+        }),
+    // 🆕 SEO Fields
+    seo_title: Joi.string().max(60).allow('').optional(),       // Google recommends ≤ 60 characters
+    seo_description: Joi.string().max(160).allow('').optional(),   // Google recommends ≤ 160 characters
 });
