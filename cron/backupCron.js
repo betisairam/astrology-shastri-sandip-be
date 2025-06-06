@@ -8,7 +8,7 @@ const startBackupCron = () => {
         await generateBackup();
     });
 
-    // Every 15 days - delete old local backups
+    // Every 15 days, remove local backups older than 10 minutes
     cron.schedule('0 0 */15 * *', () => {
         console.log('🧹 Cleaning up old backups...');
         deleteOldBackups();
